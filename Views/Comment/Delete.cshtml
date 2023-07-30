@@ -1,0 +1,23 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="card-body">
+    <div>
+        <h3 style="text-align: left">Удаление комментария!</h3>
+        <br>
+        <form method="post" action="/Comment/Delete">
+            <table>
+                <tr>
+                    <td>Название комментария:</td>
+                    <td><input type="text" name="title" class="form-control" /> </td>
+                </tr>
+
+            </table>
+            <br>
+            <button class="btn btn-primary" type="submit">Delete</button>
+        </form>
+    </div>
+</div>

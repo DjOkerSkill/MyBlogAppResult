@@ -1,0 +1,14 @@
+﻿@using BlogAppMy.Models
+@model IEnumerable<Article>
+
+@foreach (var article in Model)
+{
+    <h3>Название статьи</h3>
+    <h3>@article.Title</h3>
+    <br />
+    <h3>Содержание статьи</h3>
+    <h3>@article.Description</h3>
+    <br />
+    
+}
+

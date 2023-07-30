@@ -1,0 +1,34 @@
+﻿.main {
+    -ms-flex: 30%; /* IE10 */
+    flex: 30%;
+    padding: 20px;
+}
+
+
+.side {
+    -ms-flex: 70%; /* IE10 */
+    flex: 70%;
+    padding: 20px;
+}
+
+.row {
+    display: -ms-flexbox; /* IE10 */
+    display: flex;
+    -ms-flex-wrap: wrap; /* IE10 */
+    flex-wrap: wrap;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background-color: #D0DAEE;
+}
+
+.topnav {
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+}
