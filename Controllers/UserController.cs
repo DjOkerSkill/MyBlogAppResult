@@ -1,6 +1,7 @@
 ﻿using BlogAppMy.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,11 @@ namespace BlogAppMy.Controllers
     public class UserController : Controller
     {
         public BlogContext Context { get; set; }
-        public UserController(BlogContext context)
+        public ILogger Logger { get; set; }
+        public UserController(BlogContext context, ILogger<UserController> logger)
         {
             Context = context;
+            Logger = logger;
         }
 
         public IActionResult Index()
@@ -29,32 +32,53 @@ namespace BlogAppMy.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(string name, string lastName, int age, string login, string password)
         {
-            User user = new User()
-            {
-                Name = name,
-                LastName = lastName,
-                Age = age,
-                Login = login,
-                Password = password
-            };
+            Logger.LogInformation("Register method was called");
 
-            var entry = Context.Entry(user);
-            if (entry.State == Microsoft.EntityFrameworkCore.EntityState.Detached)
+            try
             {
-                await Context.AddAsync(user);
+
+                User user = new User()
+                {
+                    Name = name,
+                    LastName = lastName,
+                    Age = age,
+                    Login = login,
+                    Password = password
+                };
+
+                var entry = Context.Entry(user);
+                if (entry.State == Microsoft.EntityFrameworkCore.EntityState.Detached)
+                {
+                    await Context.AddAsync(user);
+                }
+                await Context.SaveChangesAsync();
+
+                return Redirect("/Home/Index");
             }
-            await Context.SaveChangesAsync();
-
-            return Redirect("/Home/Index");
+            catch(Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
         public IActionResult ReadAll()
         {
-            List<User> users = new List<User>();
+            Logger.LogInformation("ReadAll method was called");
 
-            users = Context.Users.ToList();
+            try
+            {
+                List<User> users = new List<User>();
 
-            return View(users);
+                users = Context.Users.ToList();
+
+                return View(users);
+            }
+            catch(Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
         public IActionResult Delete()
@@ -65,11 +89,21 @@ namespace BlogAppMy.Controllers
         [HttpPost]
         public IActionResult Delete(string login)
         {
-            User user = new User();
-            user = Context.Users.Where(x => x.Login == login).FirstOrDefault();
-            Context.Users.Remove(user);
-            Context.SaveChanges();
-            return Redirect("/Home/Index");
+            Logger.LogInformation("Delete method was called");
+
+            try
+            {
+                User user = new User();
+                user = Context.Users.Where(x => x.Login == login).FirstOrDefault();
+                Context.Users.Remove(user);
+                Context.SaveChanges();
+                return Redirect("/Home/Index");
+            }
+            catch(Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
         
         
@@ -80,15 +114,25 @@ namespace BlogAppMy.Controllers
         [HttpPost]
         public IActionResult Update(string login, string name, int age)
         {
-            User user = new User();
-            user = Context.Users.Where(x => x.Login == login).FirstOrDefault();
-            user.Name = name;
-            user.Age = age;
+            Logger.LogInformation("Update method was called");
 
-            Context.Users.Update(user);
-            Context.SaveChanges();
+            try
+            {
+                User user = new User();
+                user = Context.Users.Where(x => x.Login == login).FirstOrDefault();
+                user.Name = name;
+                user.Age = age;
 
-            return Redirect("/Home/Index");
+                Context.Users.Update(user);
+                Context.SaveChanges();
+
+                return Redirect("/Home/Index");
+            }
+            catch (Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
         public IActionResult ReadForLogin() 
@@ -98,9 +142,20 @@ namespace BlogAppMy.Controllers
 
         public async Task<IActionResult> ReadForLogin(string login)
         {
-            User user = await Context.Users.Where(x=>x.Login== login).FirstOrDefaultAsync();
-            
-            return View("ResultToFind",user);
+            Logger.LogInformation("ReadForLogin method was called");
+
+            try
+            {
+
+                User user = await Context.Users.Where(x => x.Login == login).FirstOrDefaultAsync();
+
+                return View("ResultToFind", user);
+            }
+            catch (Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
 

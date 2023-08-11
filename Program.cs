@@ -18,7 +18,9 @@ namespace MyBlogApp
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+            .ConfigureLogging(configureLogging=> configureLogging.AddConsole())
+            .ConfigureLogging(configureLogging=> configureLogging.AddFile())
+            .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });

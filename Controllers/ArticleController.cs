@@ -1,6 +1,7 @@
 ﻿using BlogAppMy.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,9 +11,12 @@ namespace BlogAppMy.Controllers
     {
 
         public BlogContext Context { get; set; }
-        public ArticleController(BlogContext context)
+
+        public ILogger Logger { get; set; }
+        public ArticleController(BlogContext context, ILogger<ArticleController> logger)
         {
             Context = context;
+            Logger = logger;
         }
         public IActionResult Index()
         {
@@ -27,22 +31,33 @@ namespace BlogAppMy.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string title, string description, string login)
         {
+            Logger.LogInformation("Create method was called");
 
-            User user = await Context.Users.Where(x => x.Login == login).FirstOrDefaultAsync();
-
-
-            Article article = new Article()
+            try
             {
-                Title = title,
-                Description = description,
-                User = user,
-                UserId = user.Id
-            };
 
-            await Context.Articles.AddAsync(article);
-            await Context.SaveChangesAsync();
+                User user = await Context.Users.Where(x => x.Login == login).FirstOrDefaultAsync();
 
-            return Redirect("/Home/Index");
+
+                Article article = new Article()
+                {
+                    Title = title,
+                    Description = description,
+                    User = user,
+                    UserId = user.Id
+                };
+
+                await Context.Articles.AddAsync(article);
+                await Context.SaveChangesAsync();
+
+                return Redirect("/Home/Index");
+            }
+            catch(System.Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
+        
         }
 
         public IActionResult Update()
@@ -53,15 +68,26 @@ namespace BlogAppMy.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(string title, string descriptionNew)
         {
-            Article article = new Article();
-            article = await Context.Articles.Where(x => x.Title == title).FirstOrDefaultAsync();
+            Logger.LogInformation("Update method was called");
 
-            article.Description = descriptionNew;
+            try
+            {
 
-            Context.Articles.Update(article);
-            await Context.SaveChangesAsync();
+                Article article = new Article();
+                article = await Context.Articles.Where(x => x.Title == title).FirstOrDefaultAsync();
 
-            return Redirect("/Home/Index");
+                article.Description = descriptionNew;
+
+                Context.Articles.Update(article);
+                await Context.SaveChangesAsync();
+
+                return Redirect("/Home/Index");
+            }
+            catch(System.Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
         public IActionResult Delete()
@@ -73,19 +99,39 @@ namespace BlogAppMy.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(string title)
         {
-            Article article = await Context.Articles.Where(x => x.Title == title).FirstOrDefaultAsync();
-            Context.Articles.Remove(article);
+            Logger.LogInformation("Delete method was called");
 
-            await Context.SaveChangesAsync();
+            try
+            {
+                Article article = await Context.Articles.Where(x => x.Title == title).FirstOrDefaultAsync();
+                Context.Articles.Remove(article);
 
-            return Redirect("/Home/Index");
+                await Context.SaveChangesAsync();
+
+                return Redirect("/Home/Index");
+            }
+            catch(System.Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
         public async Task<IActionResult> ReadAll()
         {
-            Article[] articles = await Context.Articles.ToArrayAsync();
+            Logger.LogInformation("ReadAll method was called");
 
-            return View(articles);
+            try
+            {
+                Article[] articles = await Context.Articles.ToArrayAsync();
+
+                return View(articles);
+            }
+            catch(System.Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
 
 
@@ -96,9 +142,20 @@ namespace BlogAppMy.Controllers
 
         public async Task<IActionResult> ReadForTitle(string titleArticle) 
         {
-            Article article = await Context.Articles.Where(x => x.Title == titleArticle).FirstOrDefaultAsync();
+            Logger.LogInformation("ReadForTitle method was called");
 
-            return View("ResultToFind", article);
+            try
+            {
+
+                Article article = await Context.Articles.Where(x => x.Title == titleArticle).FirstOrDefaultAsync();
+
+                return View("ResultToFind", article);
+            }
+            catch(System.Exception ex) 
+            {
+                Logger.LogError(ex, "Exception {ErrorMessege}", ex.Message);
+                return StatusCode(500);
+            }
         }
     }
 }
